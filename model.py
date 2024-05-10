@@ -77,7 +77,7 @@ class Block(nn.Module):
 # super simple bigram model
 class BigramLanguageModel(nn.Module):
 
-    def __init__(self, num_layers, context_length, vocab_size, num_heads, embed_dim, dropout=0, mlp_dropout=0.2):
+    def __init__(self, num_layers, context_length, vocab_size, num_heads, embed_dim, device='cuda' if torch.cuda.is_available() else 'cpu', dropout=0, mlp_dropout=0.2):
         super().__init__()
         # each token directly reads off the logits for the next token from a lookup table
         
@@ -88,7 +88,7 @@ class BigramLanguageModel(nn.Module):
         self.blocks = nn.Sequential(*[Block(embed_dim, num_heads, context_length, dropout, mlp_dropout) for _ in range(num_layers)])
         self.ln_f = nn.LayerNorm(embed_dim) # final layer norm
         self.lm_head = nn.Linear(embed_dim, vocab_size)
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = device
 
     def forward(self, idx, targets=None):
         B, T = idx.shape
@@ -127,3 +127,40 @@ class BigramLanguageModel(nn.Module):
             # append sampled index to the running sequence
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
+    
+
+
+
+
+
+
+
+if __name__ ==  '__main__':
+    device='cuda' if torch.cuda.is_available() else 'cpu'
+
+    context_length = 8
+    embed_dim = 32
+    batch = 4
+    vocab_size = 64
+    model = BigramLanguageModel(
+        num_layers=2,
+        num_heads=4,
+        context_length=32,
+        vocab_size=vocab_size,
+        embed_dim=64,
+        device=device,
+    )
+
+    model.to(device)
+
+    demo_batch = torch.randint(low=0, high=vocab_size,size=(batch, context_length))
+    print('Doing forward pass...')
+    logits, loss = model(demo_batch)
+    print("Success: Got output loss:",loss)
+    print("Success: Got output logits:",logits.shape)
+    print('Doing prediction...')
+    prediction = model.generate(demo_batch, 10)
+    print('Success: Got prediction:',prediction.shape)
+
+    print('First 8 tokens same for each batch?',torch.allclose(demo_batch, prediction[:,:8]))
+
