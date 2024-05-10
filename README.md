@@ -5,3 +5,9 @@ A project to pre-train a transformer from scratch. Code was referred from Andrej
 
 **Youtube Tutorial**: https://youtu.be/kCc8FmEb1nY?si=cMstqwDnCIbfgdEM
 
+**Dataset Link**: https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+
+**Google Colab Link**: https://colab.research.google.com/drive/1JMLa53HDuA-i7ZBmqV7ZnA3c_fvtXnx-?usp=sharing
+
+
+
