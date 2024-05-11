@@ -1,5 +1,5 @@
 # Training a Transformer from Scratch
-A project to pre-train a GPT-like language model from scratch. Code was referred from Andrej Karpathy's lecture on building GPT from scratch.
+A project to pre-train a GPT-like language model from scratch. Code was referred from Andrej Karpathy's lecture on building GPT from scratch. Modifications to the original architecture like Fast Attention have been omitted to keep the project reflective of the first principles that govern this beautiful architecture. The original repo by Andrej Kaprpathy has those modifications. For more serious, production-level applications it makes sense to adopt those time-tested modifications.
 
 **Original Project Link**: https://github.com/karpathy/ng-video-lecture
 
