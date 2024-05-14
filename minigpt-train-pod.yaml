@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: img-captioning
+  name: lm-training
 spec:
   containers:
   - name: mypod
