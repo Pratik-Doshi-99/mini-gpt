@@ -47,7 +47,7 @@ def train_model():
     decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of integers, output a string
 
     # Train and test splits
-    data = torch.tensor(encode(text), dtype=torch.long)
+    data = torch.tensor(encode(text), dtype=torch.long, device=device)
     n = int(0.9*len(data)) # first 90% will be train, rest val
     train_data = data[:n]
     val_data = data[n:]
