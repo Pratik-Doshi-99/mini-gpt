@@ -43,7 +43,7 @@ def run_cli():
             output_tokens = int(update_tokens[1])
             print('Output tokens set to',output_tokens)
         else:
-            context = torch.tensor(encode(command)).unsqueeze(0).to(model.weight.device)
+            context = torch.tensor(encode(command)).unsqueeze(0).to(model.token_embedding_table.weight.device)
             print(decode(model.generate(context, max_new_tokens=output_tokens)[0].tolist()))
         command = input('\n> ')
 
