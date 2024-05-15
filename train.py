@@ -2,16 +2,14 @@ from model import BigramLanguageModel
 import torch
 import argparse
 import os
-
+import pickle
 
 
 '''
 TODO:
-1. Pass training parameters are arguments to train.py
-2. Get progressbar
-3. Use tensorboard
-4. Generalize the dataset and loader --> train it on a dataset and publish something on LinkedIn
-5. Experiment with multi GPU training 
+1. Train the model on a public dataset
+2. Create a cli interface that takes a model, and allows the user to write prompts and get a response
+3. Publish the model trained on a public dataset to hugging face and integrate its interface to prompt that
 '''
 
 
@@ -35,8 +33,15 @@ model_name = 'mini-gpt.pth'
 
 def save_model(model):
     os.makedirs('models',exist_ok=True)
+    # with open(os.path.join('models',f'{model_name}.enc'), 'wb') as f:
+    #     pickle.dump(model, f)
     torch.save(model, os.path.join('models',model_name))
 
+def save_encoder_decoder(encoder_map, decoder_map):
+    os.makedirs('models',exist_ok=True)
+    with open(os.path.join('models',f'{model_name}.enc'), 'wb') as f:
+        pickle.dump({'encoder':encoder_map, 'decoder':decoder_map}, f)
+    
 
 
 def train_model():
@@ -54,6 +59,7 @@ def train_model():
     itos = { i:ch for i,ch in enumerate(chars) }
     encode = lambda s: [stoi[c] for c in s] # encoder: take a string, output a list of integers
     decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of integers, output a string
+    save_encoder_decoder(stoi, itos)
 
     # Train and test splits
     data = torch.tensor(encode(text), dtype=torch.long, device=device)
@@ -126,7 +132,7 @@ def train_model():
     # generate from the model
     save_model(model)
     context = torch.zeros((1, 1), dtype=torch.long, device=device)
-    print(decode(model.generate(context, max_new_tokens=2000)[0].tolist()))
+    print(decode(model.generate(context, max_new_tokens=100)[0].tolist()))
 
 
 if __name__ == '__main__':
