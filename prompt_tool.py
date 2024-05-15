@@ -26,7 +26,7 @@ def load_model(model_file, enc_file):
         stoi = enc_dec['encoder']
         itos = enc_dec['decoder']
 
-
+@torch.no_grad()
 def run_cli():
     global model
     #print(model)
