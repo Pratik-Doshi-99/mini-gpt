@@ -1,6 +1,7 @@
 from model import BigramLanguageModel
 import torch
 import argparse
+import os
 
 
 
@@ -28,13 +29,21 @@ num_heads = 4
 num_layers = 4
 dropout = 0.0
 mlp_dropout = 0.0
+input_file = 'input.txt'
+model_name = 'mini-gpt.pth'
+
+
+def save_model(model):
+    os.makedirs('models',exist_ok=True)
+    torch.save(model, os.path.join('models',model_name))
+
 
 
 def train_model():
     torch.manual_seed(1337)
 
     # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
-    with open('input.txt', 'r', encoding='utf-8') as f:
+    with open(input_file, 'r', encoding='utf-8') as f:
         text = f.read()
 
     # here are all the unique characters that occur in this text
@@ -115,6 +124,7 @@ def train_model():
         optimizer.step()
 
     # generate from the model
+    save_model(model)
     context = torch.zeros((1, 1), dtype=torch.long, device=device)
     print(decode(model.generate(context, max_new_tokens=2000)[0].tolist()))
 
@@ -123,7 +133,10 @@ if __name__ == '__main__':
     # Create the parser
     parser = argparse.ArgumentParser(description="Training a small language model 'mini-gpt'")
 
+
     # Add arguments
+    parser.add_argument('--model_name', type=str, default='mini-gpt.pth', help='Name of output model')
+    parser.add_argument('--input_file', type=str, default='input.txt', help='The input file to train from')
     parser.add_argument('--batch_size', '-b', type=int, default=64, help='Batches to be computed in parallel')
     parser.add_argument('--context_length', '-c', type=int, default=128, help='Context Length for LM')
     parser.add_argument('--iters', '-i', type=int, default=2000, help='Training Iterations')
@@ -137,8 +150,8 @@ if __name__ == '__main__':
 
     # Parse the arguments
     args = parser.parse_args()
-
-
+    model_name = args.model_name
+    input_file = args.input_file
     batch_size = args.batch_size
     context_length = args.context_length
     max_iters = args.iters
