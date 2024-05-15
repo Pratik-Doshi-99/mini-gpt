@@ -10,4 +10,12 @@ A project to pre-train a GPT-like language model from scratch. Code was referred
 **Google Colab Link**: https://colab.research.google.com/drive/1JMLa53HDuA-i7ZBmqV7ZnA3c_fvtXnx-?usp=sharing
 
 
+## Misc
+
+1. Use the following to run the training as a background process with buffering disabled to stdout
+```
+stdbuf -oL -eL ./train.sh ../data/input.txt minigpt-1.pth &
+```
+
+
 
