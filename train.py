@@ -29,6 +29,7 @@ dropout = 0.0
 mlp_dropout = 0.0
 input_file = 'input.txt'
 model_name = 'mini-gpt.pth'
+preload_model = ''
 
 
 def save_model(model):
@@ -36,6 +37,15 @@ def save_model(model):
     # with open(os.path.join('models',f'{model_name}.enc'), 'wb') as f:
     #     pickle.dump(model, f)
     torch.save(model, os.path.join('models',model_name))
+
+def load_model():
+    if os.path.exists(preload_model):
+        print(f'Model {preload_model} found, preloading it...')
+        return torch.load(preload_model)
+    print(f'Could not find model {preload_model}, preload skipped')
+    return None
+        
+
 
 def save_encoder_decoder(encoder_map, decoder_map):
     os.makedirs('models',exist_ok=True)
@@ -92,19 +102,21 @@ def train_model():
         return out
 
 
-
-
-
-    model = BigramLanguageModel(
-        num_layers=num_layers,
-        num_heads=num_heads,
-        context_length=context_length,
-        vocab_size=vocab_size,
-        embed_dim=embed_dim,
-        device=device,
-        dropout=dropout,
-        mlp_dropout=mlp_dropout
-    )
+    model = None
+    if preload_model is not None and preload_model != '':
+        model = load_model()
+    
+    if not model:
+        model = BigramLanguageModel(
+            num_layers=num_layers,
+            num_heads=num_heads,
+            context_length=context_length,
+            vocab_size=vocab_size,
+            embed_dim=embed_dim,
+            device=device,
+            dropout=dropout,
+            mlp_dropout=mlp_dropout
+        )
 
     model.to(device)
     # print the number of parameters in the model
@@ -153,6 +165,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_layers', '-l', type=int, default=8, help='Number of Attention Blocks')
     parser.add_argument('--dropout', '-d', type=float, default=0, help='Dropout rate')
     parser.add_argument('--mlp_dropout', '-md', type=float, default=0, help='MLP Dropout rate')
+    parser.add_argument('--preload', '-pl', type=str, default='', help='Path to the model that must be preloaded')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -170,6 +183,7 @@ if __name__ == '__main__':
     num_layers = args.n_layers
     dropout = args.dropout
     mlp_dropout = args.mlp_dropout
+    preload_model = args.preload
 
     print(batch_size, context_length, max_iters, eval_interval, eval_iters, embed_dim, num_heads, num_layers, dropout, mlp_dropout)
 
