@@ -3,6 +3,8 @@ import torch
 import argparse
 import os
 import pickle
+from torch.utils.tensorboard import SummaryWriter
+import datetime
 
 
 '''
@@ -30,6 +32,7 @@ mlp_dropout = 0.0
 input_file = 'input.txt'
 model_name = 'mini-gpt.pth'
 preload_model = ''
+writer = SummaryWriter(log_dir=os.path.join('training_runs','experiment_3'))
 
 
 def save_model(model):
@@ -129,20 +132,29 @@ def train_model():
 
         # every once in a while evaluate the loss on train and val sets
         if iter % eval_interval == 0 or iter == max_iters - 1:
+            t1 = datetime.datetime.now()
             losses = estimate_loss()
+            t2 = datetime.datetime.now()
+            writer.add_scalar('Loss/val', losses['val'], iter)
+            writer.add_scalar('Time/val', (t2 - t1).total_seconds(), iter)
             print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
 
+       
+        t1 = datetime.datetime.now()
         # sample a batch of data
         xb, yb = get_batch('train')
-
         # evaluate the loss
         logits, loss = model(xb, yb)
+        t2 = datetime.datetime.now()
+        writer.add_scalar('Loss/train', loss, iter)
+        writer.add_scalar('Time/train', (t2 - t1).total_seconds(), iter)
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         optimizer.step()
 
     # generate from the model
     save_model(model)
+    writer.close()
     context = torch.zeros((1, 1), dtype=torch.long, device=device)
     print(decode(model.generate(context, max_new_tokens=100)[0].tolist()))
 
